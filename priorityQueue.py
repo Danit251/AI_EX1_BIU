@@ -1,37 +1,41 @@
 import heapq
 
+
 class PriorityQueueF:
     """
       Implements a priority queue with function data structure. Each inserted item
       has a priority associated with it and the client is usually interested
       in quick retrieval of the lowest-priority item in the queue.
     """
+    ITEM_IND = 3
 
     def __init__(self, priority_f):
         self.queue = []
         self.priority_f = priority_f
 
-    def push(self, item):
-        pair = (self.priority_f(item), item)
+    def push(self, item, time, priority):
+        pair = (self.priority_f(item), time, priority, item)
         heapq.heappush(self.queue, pair)
 
     def pop(self):
-        (priority, item) = heapq.heappop(self.queue)
-        return item
+        return heapq.heappop(self.queue)[self.ITEM_IND]
 
     def remove(self, item):
-        for pair in self.queue:
-            if pair[1] == item:
-                self.queue.remove(pair)
+        for tp in self.queue:
+            if tp[self.ITEM_IND] == item:
+                self.queue.remove(tp)
                 break
 
     def is_empty(self):
-        return len(self.queue)
+        return len(self.queue) == 0
 
     def get_item_score(self, item):
-        for score, cur_item in self.queue:
+        for f_score, _, _, cur_item in self.queue:
             if cur_item == item:
-                return score
+                return f_score
 
     def __contains__(self, item):
-        return item in self.queue
+        for _, _, _, cur_item in self.queue:
+            if cur_item == item:
+                return True
+        return False

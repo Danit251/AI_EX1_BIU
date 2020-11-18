@@ -4,6 +4,9 @@ class Node:
     """
     Class that represents a Node in problem search
     """
+    # for BFS queue priority
+    moves_priority = {"R": 0, "RD": 1, "D": 2, "LD": 3, "L": 4, "LU": 5, "U": 6, "RU": 7}
+
     def __init__(self, state, path, depth, cost):
         self.state = state
         self.path = path
@@ -16,6 +19,9 @@ class Node:
         :return: string that represent the path until this node and the cost
         """
         return '{} {}'.format("-".join(self.path), self.cost)
+
+    def get_move_priority(self):
+        return self.moves_priority[self.path[-1]]
 
     def __eq__(self, other):
         return self.state == other.state

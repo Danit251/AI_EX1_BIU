@@ -1,5 +1,5 @@
 from searchProblem import SearchProblem
-from searchAlgorithms import ids, ucs
+from searchAlgorithms import ids, ucs, a_start
 
 IDS_ALGO = "IDS"
 UCS_ALGO = "UCS"
@@ -23,12 +23,14 @@ def get_problem_parameters(f_name):
 
 def main():
     # TODO: write to file!!!
-    algo, s_start, s_goal, grid = get_problem_parameters("input.txt")
+    algo, s_start, s_goal, grid = get_problem_parameters("input2.txt")
     sp = SearchProblem(grid, s_start, s_goal)
     if algo == IDS_ALGO:
         print(ids(sp))
     elif algo == UCS_ALGO:
         print(ucs(sp))
+    elif algo == A_STAR_ALGO:
+        print(a_start(sp))
 
 
 if __name__ == '__main__':
