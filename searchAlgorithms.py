@@ -3,6 +3,7 @@ NO_PATH = "no path"
 MAX_DEPTH = 20
 
 
+# BFS algorithm
 def bfs(problem, f):
     opened_nodes = 0
     frontier = PriorityQueueF(f)
@@ -31,14 +32,17 @@ def bfs(problem, f):
     return NO_PATH
 
 
+# DFS-L algorithm - part of IDS
 def dfs_l(problem, limit, pre_opened_nodes):
     cur_opened_nodes = pre_opened_nodes
     frontier = [problem.get_start_node()]
     while frontier:
         node = frontier.pop()
-        cur_opened_nodes += 1
+
         if problem.is_goal(node.state):
             return node.solution(), cur_opened_nodes
+
+        cur_opened_nodes += 1
 
         # depth limit
         if node.depth < limit:
@@ -47,9 +51,10 @@ def dfs_l(problem, limit, pre_opened_nodes):
     return NO_PATH, cur_opened_nodes
 
 
+# IDS algorithm
 def ids(problem):
     num_opened_nodes = 0
-    for depth in range(1, MAX_DEPTH):
+    for depth in range(MAX_DEPTH):
         res, num_opened_nodes = dfs_l(problem, depth, num_opened_nodes)
         if res != NO_PATH:
             return "{} {}".format(res, num_opened_nodes)
@@ -57,18 +62,80 @@ def ids(problem):
     return NO_PATH
 
 
+# g cost function - return the cost of all the nodes in the path until this node
 def g(node):
     return node.cost
 
 
+# my heuristic function
+def h(node, s_goal):
+    """
+    logic: go on the diagonal as you can until you get the row/column og the goal state than go on row/column
+    :param node: start node
+    :param s_goal: goal state
+    :return: number of minimal steps from node to goal
+    """
+    diff_row = abs(s_goal[0] - node.state[0])
+    diff_col = abs(s_goal[1] - node.state[1])
+    return min(diff_col, diff_row) + abs(diff_col - diff_row)
+
+
+# A* algorithm
 def a_start(problem):
-    def h(node):
+    def h_helper(node):
+        """
+        wrapper for h for getting only node like g
+        :param node: node to calculate for it the cost from heuristic
+        :return: cost of heuristic
+        """
         s_goal = problem.s_goal
-        diff_row = abs(s_goal[0] - node.state[0])
-        diff_col = abs(s_goal[1] - node.state[1])
-        return min(diff_col, diff_row) + abs(diff_col - diff_row)
-    return bfs(problem, f=lambda n: g(n) + h(n))
+        return h(node, s_goal)
+    return bfs(problem, f=lambda n: g(n) + h_helper(n))
 
 
+# ucs algorithm
 def ucs(problem):
     return bfs(problem, g)
+
+
+# IDA* algorithm
+def ida_star(problem):
+    s_start = problem.get_start_node()
+    s_goal = problem.s_goal
+    new_limit = h(s_start, s_goal)
+    f_limit = 0
+    nodes_count = 0
+
+    # dfs-f algorithm - recursive DFS with f function helper function for IDA*
+    def dfs_f(node, cost):
+        nonlocal new_limit
+        nonlocal nodes_count
+        nodes_count += 1
+        new_f = cost + h(node, s_goal)
+
+        if new_f > f_limit:
+            new_limit = min(new_limit, new_f)
+            return None
+
+        if problem.is_goal(node.state):
+            return node.solution()
+
+        if node.depth < MAX_DEPTH:
+            for s in problem.get_successors(node):
+                sol = dfs_f(s, cost + g(s))
+                if sol:
+                    return sol
+
+        return None
+
+    # while find new bigger limit in the limited depth
+    while f_limit != new_limit:
+        f_limit = new_limit
+        new_limit = float('inf')
+        res = dfs_f(s_start, 0)
+        if res:
+            return "{} {}".format(res, nodes_count)
+
+    return NO_PATH
+
+

@@ -23,25 +23,41 @@ class Node:
     def get_move_priority(self):
         return self.moves_priority[self.path[-1]]
 
+    # define how to compare nodes
     def __eq__(self, other):
         return self.state == other.state
 
 
 class SearchProblem:
+    """
+    Class that represent a search problem on grid.
+    The class define also the possible movement on the grid and it's start and goal states
+    """
     def __init__(self, grid, start_state, goal_state):
         self.grid = grid
         self.s_start = start_state
         self.s_goal = goal_state
 
     def is_goal(self, state):
+        """
+        :param state: state to check if it the goal
+        :return: True if the state is the goal, otherwise False
+        """
         if state[0] == self.s_goal[0] and state[1] == self.s_goal[1]:
             return True
         return False
 
     def get_start_node(self):
+        """
+        :return: start node
+        """
         return Node(self.s_start, [], 0, 0)
 
     def get_successors(self, node):
+        """
+        :param node: node to get successors from
+        :return: all the valid nodes that are possible to go
+        """
         all_legal_successors = []
         row = node.state[0]
         col = node.state[1]
